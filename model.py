@@ -13,7 +13,7 @@ class User(db.Model, UserMixin):
     
     __tablename__ = "users"
 
-    user_id = db.Column(db.Integer,autoincrement=True,primary_key=True)
+    id = db.Column(db.Integer,autoincrement=True,primary_key=True)
     email = db.Column(db.String, unique=True, nullable = False)
     password = db.Column(db.String, nullable = False)
     
@@ -21,7 +21,12 @@ class User(db.Model, UserMixin):
     # uh oh.. theres a love triangle.....
 
     def __repr__(self):
-        return f'<User user_id={self.user_id} email={self.email}>'
+        return f'<User user_id={self.id} email={self.email}>'
+
+    def __init__(self, email, password):
+        self.email = email
+        self.password = password
+
 
 class Movie(db.Model):
 
@@ -34,7 +39,7 @@ class Movie(db.Model):
     poster_path = db.Column(db.String)
  
     #has a relationship with ratings
-    def __repr__():
+    def __repr__(self):
         return f"<Movie movie_id={self.movie_id} title={self.title}>"
 
 class Rating(db.Model):
@@ -44,9 +49,9 @@ class Rating(db.Model):
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key= True)
     score = db.Column(db.Integer)
     movie_id = db.Column(db.Integer, db.ForeignKey("movies.movie_id"))
-    user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
-    movie = db.relationship("Movie", backref="ratings")
+    movie = db.relationship("Movie", backref="ratings",)
     user = db.relationship("User", backref="ratings")
 
     def __repr__(self):

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %} {{ movie.title }} - Details{% endblock %}
+
+{% block body %}
+
+<h1>{{ movie.title }}</h1>
+<p>
+  {{ movie.overview }}
+</p>
+{{rating_form.csrf_token}}
+{{rating_form.rating}}
+{{rating_form.submit}}
+
+<img src="{{ movie.poster_path }}" style="height: 200px; width: 200px;">
+{% endblock %}
