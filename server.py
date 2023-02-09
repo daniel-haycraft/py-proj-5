@@ -27,29 +27,32 @@ def home():
     return render_template('homepage.html')
 
 @app.route('/movies')
+@login_required
 def all_movies():
     movies = Movie.query.all()
     return render_template('all_movies.html', movies = movies)
 
-@app.route('/movies/<movie_id>')
+@app.route('/movies/<movie_id>', methods=['GET', 'POST'])
+@login_required
 def movie_deets(movie_id):
     rating_form = RatingForm()
     rating = rating_form.rating.data
-    user = User.query.all()
-    session['email'] = user['email']
-    movie = Movie.query.all()
-    session['movie'] = movie['movie']
-    new_rating = crud.create_rating(user, movie, rating)
-    db.session.add(new_rating)
-    db.session.commit()
-    return render_template('movie_deets.html', movie=movie, rating_form = rating_form)
+    moviee = Movie.query.filter_by(movie_id = movie_id).first()
+    user = User.query.filter_by(id= movie_id).first()
+    if rating_form.validate_on_submit():
+        new_rating = crud.create_rating(user, moviee, rating)
+        db.session.add(new_rating)
+        db.session.commit()
+    return render_template('movie_deets.html', moviee=moviee, rating_form = rating_form, )
 
 @app.route('/users')
+@login_required
 def all_users():
     users = User.query.all()
     return render_template('users.html', users = users)
 
 @app.route('/users/<user_id>')
+@login_required
 def user_profile(user_id):
     user = User.query.filter_by(id = user_id).first()
     rating = Rating.query.filter_by(user_id = user_id).first()
@@ -102,7 +105,10 @@ def login():
         return render_template('login.html', form = form)
 
 
-
+@app.errorhandler(401)
+def error(e):
+    flash('Hey sorry the page you are looking for is unavailable right now, sign in to get access to an unlimited amount of movies!')
+    return render_template('401.html')
 
 if __name__ == "__main__":
     connect_to_db(app)

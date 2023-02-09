@@ -1,16 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %} {{ movie.title }} - Details{% endblock %}
+{% block title %} {{ moviee.title }} - Details{% endblock %}
 
 {% block body %}
 
-<h1>{{ movie.title }}</h1>
+<h1>{{ moviee.title }}</h1>
 <p>
-  {{ movie.overview }}
+  {{ moviee.overview }}
 </p>
-{{rating_form.csrf_token}}
-{{rating_form.rating}}
-{{rating_form.submit}}
+<form action="{{ url_for('movie_deets', movie_id= moviee.movie_id) }}", method="POST">
+    {{rating_form.csrf_token}}
+    {{rating_form.rating}}
+    {{rating_form.submit}}
+</form>
 
-<img src="{{ movie.poster_path }}" style="height: 200px; width: 200px;">
+<img src="{{ moviee.poster_path }}" style="height: 200px; width: 200px;">
 {% endblock %}

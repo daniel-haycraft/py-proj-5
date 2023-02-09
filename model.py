@@ -42,6 +42,12 @@ class Movie(db.Model):
     def __repr__(self):
         return f"<Movie movie_id={self.movie_id} title={self.title}>"
 
+    
+    # def create(cls, email, password):
+    #      """Create and return a new user."""
+
+    #      return cls(email=email, password=password)
+
 class Rating(db.Model):
 
     __tablename__= "ratings"
