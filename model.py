@@ -27,6 +27,12 @@ class User(db.Model, UserMixin):
         self.email = email
         self.password = password
 
+    @classmethod
+    def create_user(cls, email, password):
+        self.email = email
+        self.password = password
+        return cls(email=email, password=password)
+
 
 class Movie(db.Model):
 
@@ -42,11 +48,12 @@ class Movie(db.Model):
     def __repr__(self):
         return f"<Movie movie_id={self.movie_id} title={self.title}>"
 
+    @classmethod
+    def create_movie(cls, title, overview, release_date, poster_path):
+        return cls(title = title, overview= overview, release_date= release_date, poster_path= poster_path)
     
-    # def create(cls, email, password):
-    #      """Create and return a new user."""
 
-    #      return cls(email=email, password=password)
+         
 
 class Rating(db.Model):
 
@@ -62,6 +69,11 @@ class Rating(db.Model):
 
     def __repr__(self):
         return f"<Rating rating_id={self.rating_id} score={self.score}>"
+
+    @classmethod
+    def create_rating(clsscore, movie, user):
+        return cls(score =score, movie_id = movie, user_id =user)
+
 
 def connect_to_db(flask_app, db_uri=os.environ["POSTGRES_URI"], echo=False):
     flask_app.config["SQLALCHEMY_DATABASE_URI"] = db_uri

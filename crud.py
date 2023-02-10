@@ -18,9 +18,9 @@ def create_movie(title, overview, release_date, poster_path):
 
 # print(get_movies())
 
-def create_rating(user, movie, score):
-    rating = Rating(user= user, movie = movie, score= score)
-    return rating
+def create_rating(score, movie, user):
+    print(type(user))
+    return Rating(score =score, movie_id = movie, user_id =user)
 
 
 if __name__ == '__main__':

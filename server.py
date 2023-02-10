@@ -1,7 +1,7 @@
 """Server for movie ratings app."""
 
 import crud
-from flask import Flask, render_template, session, url_for, redirect, flash, session
+from flask import Flask, render_template, session, url_for, redirect, flash, session, request
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from datetime import timedelta
 
@@ -24,7 +24,7 @@ app.jinja_env.undefined = StrictUndefined
 
 @app.route('/')
 def home():
-    return render_template('homepage.html')
+    return render_template('base.html')
 
 @app.route('/movies')
 @login_required
@@ -36,14 +36,21 @@ def all_movies():
 @login_required
 def movie_deets(movie_id):
     rating_form = RatingForm()
-    rating = rating_form.rating.data
     moviee = Movie.query.filter_by(movie_id = movie_id).first()
-    user = User.query.filter_by(id= movie_id).first()
+    mov = moviee.movie_id
+    user = current_user.id
     if rating_form.validate_on_submit():
-        new_rating = crud.create_rating(user, moviee, rating)
+        score = int(rating_form.rating.data)
+        
+        # print(rating, 'rating score')
+        # print(user, 'user id')
+        # print(mov, 'movie id')
+        # new_rating = Rating(score = score, movie_id = mov, user_id =user)
+        new_rating = crud.create_rating(score, mov, user)
         db.session.add(new_rating)
         db.session.commit()
-    return render_template('movie_deets.html', moviee=moviee, rating_form = rating_form, )
+        flash(f'you gave {moviee.title} a rating of {score} out of 5')
+    return render_template('movie_deets.html', moviee=moviee, rating_form = rating_form)
 
 @app.route('/users')
 @login_required
@@ -55,7 +62,7 @@ def all_users():
 @login_required
 def user_profile(user_id):
     user = User.query.filter_by(id = user_id).first()
-    rating = Rating.query.filter_by(user_id = user_id).first()
+    rating = Rating.query.filter_by(user_id = user_id).all()
     return render_template('user_profile.html', user = user, rating = rating)
 
 @app.route('/register', methods =['GET' ,'POST'])
@@ -95,7 +102,6 @@ def login():
         remember_me = form.remember_me.data
 
         user = User.query.filter_by(email=email).first()
-        
         if user: 
             if user.password == password:
                 login_user(user, remember = remember_me, duration = timedelta(days = 7))
@@ -104,6 +110,10 @@ def login():
     else:
         return render_template('login.html', form = form)
 
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
 
 @app.errorhandler(401)
 def error(e):

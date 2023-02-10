@@ -4,12 +4,13 @@
 
 {% block body %}
 
-<h1>{{ user.email}}</h1>
+<h1>{{ user.id }}</h1>
+{% for rates in rating%}
 <p>
-{{rating.movie.title}}'s
-rating: {{rating.score}}
+{{rates.movie.title}}'s
+rating: {{rates.score}}
 </p>
 
-<img src="{{rating.movie.poster_path}}" style="height: 500px; width: 500px;">
-
+<img src="{{rates.movie.poster_path}}" style="height: 500px; width: 500px;">
+{%endfor%}
 {% endblock %}

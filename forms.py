@@ -19,5 +19,5 @@ class RegisterForm(FlaskForm):
 # it would be a radio field
 # after user sign in they are able to go in to movies tab and select a movie and be able to rate it! and be send to the db! so ill need to create a function in crud to add a rating if there isn't one
 class RatingForm(FlaskForm):
-    rating = RadioField(choices = [(1), (2), (3), (4), (5)])
+    rating = RadioField('ratings', [validators.InputRequired()], choices = [('1', '1'), ('2', '2'), ('3','3'), ('4','4'), ('5','5')])
     submit = SubmitField('Submit')
