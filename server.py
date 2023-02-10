@@ -1,6 +1,6 @@
 """Server for movie ratings app."""
 
-import crud
+
 from flask import Flask, render_template, session, url_for, redirect, flash, session, request
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from datetime import timedelta
@@ -24,13 +24,20 @@ app.jinja_env.undefined = StrictUndefined
 
 @app.route('/')
 def home():
-    return render_template('base.html')
+    movies = Movie.get_movies()
+    ratings = Rating.all_ratings()
+    if current_user.is_authenticated:
+        user_email = User.split_email(current_user)
+        return render_template('base.html', movies = movies, ratings= ratings, user= user_email[0])
+    else:
+        return render_template('base.html', movies = movies)
 
 @app.route('/movies')
 @login_required
 def all_movies():
-    movies = Movie.query.all()
-    return render_template('all_movies.html', movies = movies)
+    user_email = User.split_email(current_user)
+    movies = Movie.get_movies()
+    return render_template('all_movies.html', movies = movies, user=user_email[0])
 
 @app.route('/movies/<movie_id>', methods=['GET', 'POST'])
 @login_required
@@ -39,24 +46,30 @@ def movie_deets(movie_id):
     moviee = Movie.query.filter_by(movie_id = movie_id).first()
     mov = moviee.movie_id
     user = current_user.id
+    user_email = User.split_email(current_user)
+    # if current_user != None:
+    #     return redirect(url_for('home'))
     if rating_form.validate_on_submit():
         score = int(rating_form.rating.data)
-        
-        # print(rating, 'rating score')
-        # print(user, 'user id')
-        # print(mov, 'movie id')
-        # new_rating = Rating(score = score, movie_id = mov, user_id =user)
-        new_rating = crud.create_rating(score, mov, user)
+        new_rating = Rating.create_rating(score, mov, user)
         db.session.add(new_rating)
         db.session.commit()
         flash(f'you gave {moviee.title} a rating of {score} out of 5')
-    return render_template('movie_deets.html', moviee=moviee, rating_form = rating_form)
+    return render_template('movie_deets.html', moviee=moviee, rating_form = rating_form, user = user_email[0])
 
 @app.route('/users')
 @login_required
 def all_users():
-    users = User.query.all()
-    return render_template('users.html', users = users)
+    all_users = User.get_users()
+    users = []
+    for you in all_users:
+        split_users = you.email.split('@')
+        users.append(split_users)
+        
+        
+
+    user_email = User.split_email(current_user)
+    return render_template('users.html', users = users, user = user_email[0])
 
 @app.route('/users/<user_id>')
 @login_required
@@ -80,10 +93,10 @@ def register_email():
         if password != password_confirmed:
             return 'passwords do not match'
         else:
-            new_user = crud.create_user(email, password)
+            new_user = User.create_user(email, password)
             db.session.add(new_user)
             db.session.commit()
-            flash('{new_user.email} has been created!')
+            flash(f'{new_user.email} has been created!')
             return redirect(url_for('home'))
     return render_template('register.html', register = register)
     
@@ -105,7 +118,7 @@ def login():
         if user: 
             if user.password == password:
                 login_user(user, remember = remember_me, duration = timedelta(days = 7))
-                return redirect(url_for('home'))
+                return redirect(url_for('home')), flash('logged in')
         return 'wrong password or email'
     else:
         return render_template('login.html', form = form)
@@ -114,6 +127,11 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("login"))
+
+@app.errorhandler(404)
+def error(e):
+    flash('Hey sorry the page you are looking for is unavailable right now, sign in to get access to an unlimited amount of movies!')
+    return render_template('401.html')
 
 @app.errorhandler(401)
 def error(e):

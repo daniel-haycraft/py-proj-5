@@ -1,14 +1,22 @@
+{% extends 'base.html'%}
+
+
 <h2>Movies</h2>
 {% block body %}
   <h1>All Movies</h1>
-
   <ul>
     {% for movie in movies %}
-      <li>
+    <section class="container">
+      <div class="item">
+      <li >
         <a href="/movies/{{ movie.movie_id }}">
           {{ movie.title }}
         </a>
       </li>
-    {% endfor %}
-  </ul>
+    </ul>
+  </div>
+</section>
+    <br>
+
+      {% endfor %}
 {% endblock %}

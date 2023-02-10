@@ -23,15 +23,20 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f'<User user_id={self.id} email={self.email}>'
 
+    def split_email(current_user):
+        return current_user.email.split('@') 
+
     def __init__(self, email, password):
         self.email = email
         self.password = password
 
     @classmethod
     def create_user(cls, email, password):
-        self.email = email
-        self.password = password
         return cls(email=email, password=password)
+    
+    @classmethod
+    def get_users(cls):
+        return cls.query.all()
 
 
 class Movie(db.Model):
@@ -51,6 +56,10 @@ class Movie(db.Model):
     @classmethod
     def create_movie(cls, title, overview, release_date, poster_path):
         return cls(title = title, overview= overview, release_date= release_date, poster_path= poster_path)
+
+    @classmethod
+    def get_movies(cls):
+        return cls.query.all()
     
 
          
@@ -71,8 +80,12 @@ class Rating(db.Model):
         return f"<Rating rating_id={self.rating_id} score={self.score}>"
 
     @classmethod
-    def create_rating(clsscore, movie, user):
+    def create_rating(cls, score, movie, user):
         return cls(score =score, movie_id = movie, user_id =user)
+
+    @classmethod
+    def all_ratings(cls):
+        return cls.query.all()
 
 
 def connect_to_db(flask_app, db_uri=os.environ["POSTGRES_URI"], echo=False):
